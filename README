@@ -1,0 +1,84 @@
+dvbserver.pl
+
+  dvbserver.pl is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+ Summary
+   A simple HTTP server to stream audio from DVB-T stations on Linux systems.
+   The primary goal is to provide DVB Radio to squeezecenter from Logitech (see http://www.slimdevices.com)
+ 
+ Changes
+   Version 1.0 Graham Chapman - 6th November 2008
+     First Release!
+   Version 1.1 Graham Chapman - 8th November 2008
+     Use direct http and ts2radio instead of mplayer to get stream
+        ts2radio is included in the distribution
+     Use icy-metadata to get program details to squeezecentre
+   Version 2.0 Graham Chapman - 11th November 2008
+     Remove dependancy on getstream and ts2radio binaries - just use perl module Linux::DVB instead
+     Include DVB-S and DVB-C (untested) support.
+     Command line parsing for setting common options (use --help for details)
+   Version 2.1 Graham Chapman - 13th November 2008
+     Minor updates - clean disconnects and disconnect when client stops taking data 
+
+ Features
+   - Uses a standard format (from dvbscan) channels.conf file
+   - Automatically retunes when a channel from a different multiplex is requested.
+   - Stream multiple stations from one multiplex concurrently
+   - Stream audio from TV channels or Radio (audio only) channels
+   - Serves an HTML channel list linking to playlists (PLS Format) for easy configuration of squeezecenter
+   - Provide current program information from DVB Now & Next EIT data
+   - Optionally run stream through a filter (eg. lame to resample 48KHz->44.1KHz for squeeze slave)
+
+ Streams available
+   - RAW (normally MP2) with Icy-metadata stream info (if requested by the client)
+
+ Requirements
+   - Linux installation with working DVB Card
+   - dvbscan style channels.conf (default location file at /etc/dvbserver.conf)
+   - Perl 
+   - Perl Modules:
+      Linux::DVB
+        Unfortunately the version on CPAN is broken for DVB-T tuning, see note below
+      IO::Socket, IO::Select, IO::Handle, IPC::Open2, Fcntl, POSIX
+        Should be on any Linux Perl distro - if squeezecentre works, you have them!
+
+Linux::DVB
+   A perl interface to the Linux DVB API.
+   The version on CPAN is broken for DVB-T tuning. Fixed source, and a Linux i386 binary are included.
+   If you are running a modern i386 Linux, you should be able to just:
+    - Open a linux command prompt or terminal window
+    - cd to the Linux-DVB-1.0 directory in same folder as the file
+    - Type: make install
+            Note: this step required root permissions, you may need eg: sudo make install
+   If not, you will need to build it:
+    - Ensure you have either Linux kernel headers, or full source installed
+    - Ensure you have the base development packages installed (GCC, GLIBC etc)
+    - Open a linux command prompt or terminal window
+    - cd to the Linux-DVB-1.0 directory in same folder as the file
+    - Type: perl -f Makefile.PL
+    - Type: make
+    - Type: make install
+            Note: this step required root permissions, you may need eg: sudo make install
+
+ Quick start
+ 
+ 1) Follow the Linux::DVB inructions above
+ 2) Use dvbscan to create a channel list at /etc/dvbserver.conf (unless you changed the name below)
+      eg: dvbscan /usr/share/dvb/dvb-t/uk-Hannington > /etc/dvbserver.conf
+      see http://www.linuxtv.org/wiki/index.php/Scan for full instructions
+ 4) Launch dvbserver.pl
+ 5) Point a web browser at http://yourhostnamehere:9001/
+ 6) Either:
+     Copy a single channel link and paste it into Squeezecenter, Internet Radio, Tune In URL
+    Or:
+     Download a channel playlist and save in your Squeezecenter playlists folder (remember to rescan playlists).
+ 7) If you like it, add dvbserver.pl to your system startup init scripts. (You will want an & after it to make it run in the background.
+
+ In case of problems, use the -d switch to enable verbose output.
+ For full command line options run: dvbserver.pl --help
+
+ Known Limitations
+  - Only supports 1 DVB adapter
